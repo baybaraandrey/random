@@ -11,8 +11,8 @@ func main() {
 	ip, _ := net.ParseIP("192.168.0.1")
 	network := ip.Mask(mask)
 
-	fmt.Println(ip.String())
-	fmt.Println(network.String())
+	fmt.Println("IP: ", ip.String())
+	fmt.Println("NETWORK: ", network.String())
 
 }
 
