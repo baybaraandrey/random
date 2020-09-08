@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"strings"
+	"time"
 )
 
 func handleC(conn net.Conn) {
@@ -16,6 +17,7 @@ func handleC(conn net.Conn) {
 	var buf [512]byte
 	
 	for {
+		conn.SetDeadline(time.Now().Add(5 * time.Second))
 		n, err := conn.Read(buf[0:])
 		if err != nil {
 			return
@@ -50,6 +52,7 @@ func main() {
 		if err != nil {
 			continue
 		}
+
 		fmt.Println("Accepted new connection")
 		go handleC(conn)
 	}
