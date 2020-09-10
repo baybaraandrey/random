@@ -3,7 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"time"
+	"github.com/shirou/gopsutil/mem"
 )
 
 type VirtualMemory struct {
@@ -14,6 +15,7 @@ type VirtualMemory struct {
 
 type Metrics struct {
 	Hostname          string        `json:"hostname"`
+	Time string `json:"time"`
 	VirtualMemoryStat VirtualMemory `json:"virtual_memory_stat"`
 }
 
@@ -28,11 +30,28 @@ var (
 	}
 )
 
-func main() {
-	serialized, err := json.Marshal(metrics)
-	if err != nil {
-		log.Fatal(err)
+func Gather() *Metrics {
+	v, _ := mem.VirtualMemory()
+	return &Metrics{
+		Hostname: "web",
+		VirtualMemoryStat: VirtualMemory{
+			Total:       v.Total,
+			Free:        v.Free,
+			UsedPercent: v.UsedPercent,
+		},
 	}
+}
 
-	fmt.Println(string(serialized))
+func main() {
+
+	for tick := range time.Tick(1 * time.Second) {
+		metrics := Gather()
+		metrics.Time = tick.String()
+		serialized, err := json.Marshal(*metrics)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		fmt.Println(string(serialized))
+	}
 }
